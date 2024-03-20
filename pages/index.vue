@@ -1,6 +1,7 @@
+// pages/index.vue
+
 <template>
   <div>
-    <!-- <NuxtWelcome /> -->
     <ThreeCube />
   </div>
 </template>
