@@ -1,5 +1,5 @@
 <template>
-  <div ref="target" style="width: 500px; height: 500px;"></div>
+  <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp"></div>
 </template>
 
 <script setup lang="ts">
@@ -7,6 +7,8 @@ import { ref, onMounted } from 'vue';
 import * as THREE from 'three';
 
 const target = ref<HTMLElement | null>(null);
+const moveForward = ref(false);
+const moveBackward = ref(false);
 
 onMounted(() => {
     if (typeof window !== 'undefined' && target.value) {
@@ -23,11 +25,19 @@ onMounted(() => {
 
         camera.position.z = 5;
 
+
         function animate() {
             requestAnimationFrame(animate);
 
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+            if (moveForward.value) {
+                cube.position.z -= 0.05; // Adjust the speed as needed
+            }
+
+            if (moveBackward.value) {
+                cube.position.z += 0.05; // Adjust the speed as needed
+            }
+            // cube.rotation.x += 0.01;
+            // cube.rotation.y += 0.01;
 
             renderer.render(scene, camera);
         }
@@ -36,5 +46,23 @@ onMounted(() => {
         animate();
     }
 });
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'w') {
+      moveForward.value = true;
+    }
+    if (event.key === 's') {
+      moveBackward.value = true;
+    }
+}
+function handleKeyUp(event: KeyboardEvent) {
+    if (event.key === 'w') {
+      moveForward.value = false;
+    }
+    if (event.key === 's') {
+      moveBackward.value = false;
+    }
+}
+
 </script>
 
