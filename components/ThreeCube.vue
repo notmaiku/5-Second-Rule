@@ -1,10 +1,14 @@
 <template>
-  <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp"></div>
+  <div>
+    <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp"></div>
+    <div ref="stats" style="position: absolute; top: 0; right: 0; cursor: pointer;"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import * as THREE from 'three';
+import Stats from 'stats.js';
 
 const target = ref<HTMLElement | null>(null);
 const moveForward = ref(false);
@@ -25,6 +29,10 @@ onMounted(() => {
 
         camera.position.z = 5;
 
+        // Add stats.js
+        const stats = new Stats();
+        stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.body.appendChild(stats.dom);
 
         function animate() {
             requestAnimationFrame(animate);
@@ -36,10 +44,13 @@ onMounted(() => {
             if (moveBackward.value) {
                 cube.position.z += 0.05; // Adjust the speed as needed
             }
-            // cube.rotation.x += 0.01;
-            // cube.rotation.y += 0.01;
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
 
             renderer.render(scene, camera);
+
+            // Update stats
+            stats.update();
         }
 
         target.value.appendChild(renderer.domElement);
