@@ -7,9 +7,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from 'vue';
 import ThreeCube from '~/components/ThreeCube.vue';
-
+import { defineComponent } from 'vue';
+ 
 defineComponent({
   components: {
     ThreeCube

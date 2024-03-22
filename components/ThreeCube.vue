@@ -1,16 +1,24 @@
 <template>
-  <div>
+  <div style="display: flex; width=100%; height=100%">
     <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp">
     </div>
-    <div ref="stats" style="position: absolute; top: 0; right: 0; cursor: pointer;"></div>
+    <div ref="stats" style=" cursor: pointer;"></div>
+    <ul>
+      <li v-for="model in models" :key="model">
+        <button @click="selectedModal = model">{{ model }}</button>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, type Ref, watch } from 'vue';
 import * as THREE from 'three';
 import Stats from 'stats.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+
+const selectedModal = ref('Hamtaro');
+const models = ['Hamtaro', 'cinnamoroll', 'cube']
 
 const target = ref<HTMLElement | null>(null);
 const moveForward = ref(false);
@@ -51,7 +59,7 @@ onMounted(() => {
     // Load OBJ file
     const loader = new OBJLoader();
     loader.load(
-      'Hamtaro.obj',
+      `${selectedModal.value}.obj`,
       (object) => {
         loadedObject = object;
         scene.add(object);
@@ -93,6 +101,34 @@ function animate() {
   stats.update();
 }
 
+
+function loadModel(modelName: string) {
+  const loader = new OBJLoader();
+  loader.load(
+    `${modelName}.obj`,
+    (object) => {
+      if (loadedObject) {
+        scene.remove(loadedObject);
+      }
+      loadedObject = object;
+      scene.add(object);
+    },
+    (xhr) => {
+      console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    (error) => {
+      console.error('An error happened', error);
+    }
+  );
+}
+
+watch(selectedModal, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    loadModel(newValue);
+  }
+});
+
+
 function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'w') {
     moveForward.value = true;
@@ -109,5 +145,6 @@ function handleKeyUp(event: KeyboardEvent) {
     moveBackward.value = false;
   }
 }
+
 </script>
 
