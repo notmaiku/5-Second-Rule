@@ -1,6 +1,6 @@
 <template>
-  <div style="display: flex; width=100%; height=100%">
-    <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp">
+  <div style="display: flex;">
+    <div ref="target"  tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp">
     </div>
     <div ref="stats" style=" cursor: pointer;"></div>
     <ul>
@@ -35,7 +35,7 @@ onMounted(() => {
     scene = new THREE.Scene();
 
     // Create camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.outerWidth / window.outerHeight, 0.1, 1000);
     camera.position.z = 5;
 
     // Create renderer
@@ -148,3 +148,9 @@ function handleKeyUp(event: KeyboardEvent) {
 
 </script>
 
+<style scoped>
+:root {
+  height: 100vh;
+  background: #162525;
+}
+</style>
