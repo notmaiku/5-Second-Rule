@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp"></div>
+    <div ref="target" style="width: 500px; height: 500px;" tabindex="0" @keydown="handleKeyDown" @keyup="handleKeyUp">
+    </div>
     <div ref="stats" style="position: absolute; top: 0; right: 0; cursor: pointer;"></div>
   </div>
 </template>
@@ -9,71 +10,104 @@
 import { ref, onMounted } from 'vue';
 import * as THREE from 'three';
 import Stats from 'stats.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 const target = ref<HTMLElement | null>(null);
 const moveForward = ref(false);
 const moveBackward = ref(false);
+let loadedObject: THREE.Object3D | null = null;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
+let renderer: THREE.WebGLRenderer;
+let stats: Stats;
 
 onMounted(() => {
-    if (typeof window !== 'undefined' && target.value) {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  if (typeof window !== 'undefined' && target.value) {
+    // Create scene
+    scene = new THREE.Scene();
 
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(500, 500);
+    // Create camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+    // Create renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(500, 500);
+    target.value.appendChild(renderer.domElement);
 
-        camera.position.z = 5;
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
+    scene.add(ambientLight);
 
-        // Add stats.js
-        const stats = new Stats();
-        stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-        document.body.appendChild(stats.dom);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light, shining from the top
+    directionalLight.position.set(0, 1, 0); // Direction the light is shining towards
+    scene.add(directionalLight);
 
-        function animate() {
-            requestAnimationFrame(animate);
+    // Add stats.js
+    stats = new Stats();
+    stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(stats.dom);
 
-            if (moveForward.value) {
-                cube.position.z -= 0.05; // Adjust the speed as needed
-            }
+    // Load OBJ file
+    const loader = new OBJLoader();
+    loader.load(
+      'Hamtaro.obj',
+      (object) => {
+        loadedObject = object;
+        scene.add(object);
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+      },
+      (error) => {
+        console.error('An error happened', error);
+      }
+    );
 
-            if (moveBackward.value) {
-                cube.position.z += 0.05; // Adjust the speed as needed
-            }
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-
-            renderer.render(scene, camera);
-
-            // Update stats
-            stats.update();
-        }
-
-        target.value.appendChild(renderer.domElement);
-        animate();
-    }
+    // Start animation
+    animate();
+  }
 });
 
-function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'w') {
-      moveForward.value = true;
-    }
-    if (event.key === 's') {
-      moveBackward.value = true;
-    }
-}
-function handleKeyUp(event: KeyboardEvent) {
-    if (event.key === 'w') {
-      moveForward.value = false;
-    }
-    if (event.key === 's') {
-      moveBackward.value = false;
-    }
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Move object forward or backward based on keyboard input
+  if (moveForward.value && loadedObject) {
+    loadedObject.position.z -= 0.05; // Move the object forward
+  }
+
+  if (moveBackward.value && loadedObject) {
+    loadedObject.position.z += 0.05; // Move the object backward
+  }
+
+  // Rotate object (optional)
+  if (loadedObject) {
+    loadedObject.rotation.x += 0.01;
+    loadedObject.rotation.y += 0.01;
+  }
+
+  renderer.render(scene, camera);
+
+  // Update stats
+  stats.update();
 }
 
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'w') {
+    moveForward.value = true;
+  }
+  if (event.key === 's') {
+    moveBackward.value = true;
+  }
+}
+function handleKeyUp(event: KeyboardEvent) {
+  if (event.key === 'w') {
+    moveForward.value = false;
+  }
+  if (event.key === 's') {
+    moveBackward.value = false;
+  }
+}
 </script>
 
