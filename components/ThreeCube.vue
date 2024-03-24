@@ -23,6 +23,8 @@ const models = ['Hamtaro', 'cinnamoroll', 'cube']
 const target = ref<HTMLElement | null>(null);
 const moveForward = ref(false);
 const moveBackward = ref(false);
+const moveLeft = ref(false);
+const moveRight = ref(false);
 let loadedObject: THREE.Object3D | null = null;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
@@ -136,6 +138,12 @@ function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 's') {
     moveBackward.value = true;
   }
+  if (event.key === 's') {
+    moveLeft.value = true;
+  }
+  if (event.key === 's') {
+    moveRight.value = true;
+  }
 }
 function handleKeyUp(event: KeyboardEvent) {
   if (event.key === 'w') {
@@ -143,6 +151,12 @@ function handleKeyUp(event: KeyboardEvent) {
   }
   if (event.key === 's') {
     moveBackward.value = false;
+  }
+  if (event.key === 's') {
+    moveLeft.value = false;
+  }
+  if (event.key === 's') {
+    moveRight.value = false;
   }
 }
 
